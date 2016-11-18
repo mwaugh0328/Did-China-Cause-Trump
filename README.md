@@ -1,5 +1,5 @@
 # Did-China-Cause-Trump
-This code is part of a project to learn Python through the NYU-Stern-Econ databoot camp course (http://databootcamp.nyuecon.com/). It combines US 2016 Election data at the county level with the Autor, Dorn, and Hanson (2013) US Trade Exposure from China data. Basically, it asks: Did China Trade Cause Trump?
+This code is part of a project (for me) to learn Python through the NYU-Stern-Econ databoot camp course (http://databootcamp.nyuecon.com/). It combines US 2016 Election data at the county level with the Autor, Dorn, and Hanson (2013) US Trade Exposure from China data. Basically, it asks: Did China Trade Cause Trump?
 
 This code does the following: It imports the 2016 Election Data, imports a Country FIPS code to Commuting Zone mapping and then merges it with the ADH data which measures the exposure of a commuting zone to Chinese trade. 
 
