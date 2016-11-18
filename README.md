@@ -9,7 +9,7 @@ This relies upon three public data sets that are in the site, but can be found h
 
 1) 2016 US election data : https://data.world/aaronhoffman/us-general-election-2016
 
-2) Country FIPS to Communting Zones: http://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/
+2) County FIPS to Communting Zones: http://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/
 
 3) Autor, Dorn, and Hanson data: http://www.ddorn.net/data.htm
 
