@@ -12,9 +12,10 @@ Created on Tue Nov 22 16:06:46 2016
 
 # This code does the following: It imports the 2016 Election Data, the 2012
 # election data, and then imports the FIPS to Commuting zone mapping and 
-# then merges it with the ADH data which is performed at the commuting zone level. 
+# then merges it with the education and earnings data from the Census...
+# then the ADH data. 
 
-# I then regress, the change in election outcomes on the trade exposure measure
+# I then regress, the change in election outcomes on various measures...
 
 #%% 
 import pandas as pd
@@ -91,6 +92,8 @@ election_2016results = pd.read_csv(csv_file)
 trump = election_2016results[election_2016results["Candidate"] == "Trump"]
 clinton = election_2016results[election_2016results["Candidate"] == "Clinton"]
 
+print("\n 2016 Election Results")
+
 if trump.VoteCount.sum() > clinton.VoteCount.sum():
     print("\nTrump Won Popular Vote")
     print(trump.VoteCount.sum())
@@ -139,7 +142,22 @@ print("\n")
 vote_by_cz = vote_by_2016cz.merge(vote_by_2012cz, how = "outer", 
                                   left_index = "True", right_index = "True", indicator = "True")
 
-vote_by_cz["Diff20162012"] = vote_by_cz.TrumpShare-vote_by_cz.RomneyShare
+vote_by_cz = vote_by_cz.drop(vote_by_cz[vote_by_cz["True"]!='both'].index)
+
+#%%
+
+# Now merge with the census data...
+
+csv_file = folder + "\\acs_education_cz.csv"
+
+acs_edu_cz = pd.read_csv(csv_file)
+
+vote_by_cz = vote_by_cz.merge(acs_edu_cz, how = "outer", 
+                                  left_index = "True", right_on = "CZ90", indicator = "True_ed")
+
+#%%
+
+vote_by_cz["Diff20162012"] = (vote_by_cz.TrumpShare-vote_by_cz.RomneyShare)/vote_by_cz.RomneyShare
  
 vote_by_cz["TurnoutDiff"]= (vote_by_cz.TotalVotes2016 - vote_by_cz.TotalVotes2012)/vote_by_cz.TotalVotes2012
 
@@ -151,8 +169,12 @@ print("\n")
 print("\n Correlation: Trunout Difference and Flip", corr_mat.Diff20162012.TurnoutDiff)
 print("\n")
 
+print("\n Correlation: Change in Share and Earnings", corr_mat.Diff20162012.WEarnings)
+print("\n")
+
 
 #%%
+
 stata_file = folder + "\\workfile_china.dta"
 adh_data = pd.read_stata(stata_file)
 
@@ -166,9 +188,12 @@ k_adh_data = adh_data[["czone", "d_tradeusch_pw", "d_tradeotch_pw_lag", "timepwt
 #%%
 
 adh_election = vote_by_cz.merge(k_adh_data, how = 'outer', right_on = 'czone', 
-                       left_index = 'True')
+                       left_on = 'CZ90')
 
 adh_election = adh_election.drop(adh_election[adh_election["True"]!="both"].index)
+
+adh_election["HighSchoolShare"] = (adh_election.LTHighSchool + 
+                                adh_election.HighSchool)/adh_election.Pop25
 
 corr_mat = adh_election.corr()
 
@@ -180,33 +205,21 @@ print("\n Correlation: Trump Share and Other ADH Share",
       corr_mat.Diff20162012.d_tradeotch_pw_lag)
 print("\n")
 
-#
-
-# County Characteristics
-#https://www.census.gov/popest/data/counties/asrh/2015/CC-EST2015-ALLDATA.html
-
 #%%
 
 adh_election["lg_d_tradeusch_pw"] = np.log(adh_election.d_tradeusch_pw)
-adh_election["lg_TotalVotes2012"] = np.log(adh_election.TotalVotes2012)
+adh_election["lg_Pop"] = np.log(adh_election.Pop25)
+adh_election["lg_Earnings"] = np.log(adh_election.Earnings)
 
-elec_beta = sm.ols(formula=
-'Diff20162012 ~ d_tradeusch_pw + lg_TotalVotes2012', 
-                   data=adh_election).fit()
+elec_beta = sm.wls(formula=
+'Diff20162012 ~  lg_Earnings + HighSchoolShare + lg_Pop', 
+                   data=adh_election,
+                   weights = adh_election.PopShare).fit()
 
-
-#print("\n Elasticity w.r. China Trade Growth\n", elec_beta.params)
-#print("\nConfidence Interval\n", elec_beta.conf_int(alpha=0.01))
 print("\nSummary of Regression\n", elec_beta.summary())
 
+adh_election.plot(kind='scatter', x='Diff20162012', y='HighSchoolShare')
 
-adh_election.plot(kind='scatter', x='Diff20162012', y='d_tradeusch_pw')
-
-
-
-#btest = sm.wls(formula = 'Diff20162012 ~ lg_d_tradeusch_pw', 
-#               weights = adh_election.TotalVotes2012,
-#data = adh_election).fit()
 
 
 
