@@ -5,7 +5,7 @@ This code does the following: It imports the 2016 Election Data, 2012 Election, 
 
 It then correlates the change in the republican vote with education, earnings, population size, and the trade exposure measure. 
 
-Preliminary results: Education and Population Size explain 60% of the change in the republican share. Lower education and rural areas are more likely to change more towards Trupm. 
+Preliminary results: Education and Population Size explain 60% of the change in the republican share. Lower education and rural areas are more likely to change towards Trump relative to Romney.  
 
 This relies upon four public data sets that are in the site, but can be found here:
 
