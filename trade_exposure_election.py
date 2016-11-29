@@ -212,7 +212,7 @@ adh_election["lg_Pop"] = np.log(adh_election.Pop25)
 adh_election["lg_Earnings"] = np.log(adh_election.Earnings)
 
 elec_beta = sm.wls(formula=
-'Diff20162012 ~  lg_Earnings + HighSchoolShare + lg_Pop', 
+'Diff20162012 ~  lg_Earnings + HighSchoolShare + lg_Pop + lg_d_tradeusch_pw', 
                    data=adh_election,
                    weights = adh_election.PopShare).fit()
 
